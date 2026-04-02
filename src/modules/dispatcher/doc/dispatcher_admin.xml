@@ -1570,6 +1570,11 @@ GATEWAY | PRIORITY | WEIGHT | LOAD DISTRIBUTION
 		</listitem>
 		</itemizedlist>
 		<para>
+		Returns <emphasis>1</emphasis> if further failover destinations are
+		available, <emphasis>2</emphasis> if the selected destination is the
+		only or last one, <emphasis>-1</emphasis> on failure.
+		</para>
+		<para>
 		This function can be used from REQUEST_ROUTE, FAILURE_ROUTE.
 		</para>
 		<example>
@@ -1646,6 +1651,11 @@ DEST: {
 		achieve serial forking to all possible destinations.
 		</para>
 		<para>
+		Returns <emphasis>1</emphasis> if further destinations are available,
+		<emphasis>2</emphasis> if this is the only or last, <emphasis>-1</emphasis>
+		on failure.
+		</para>
+		<para>
 		This function can be used from REQUEST_ROUTE, FAILURE_ROUTE.
 		</para>
 		<example>
@@ -1676,6 +1686,11 @@ if(ds_select_domain("1", "$var(a)")) {
 		destination set are stored in XAVP list (limited with an optional 'limit'
 		parameter). You can execute 'ds_next_domain()' or 'ds_next_dst()' to use
 		next address to achieve serial forking to all possible destinations.
+		</para>
+		<para>
+		Returns <emphasis>1</emphasis> if further destinations are available,
+		<emphasis>2</emphasis> if this is the only or last, <emphasis>-1</emphasis>
+		on failure.
 		</para>
 		<para>
 		This function can be used from ANY_ROUTE.
@@ -1739,6 +1754,11 @@ if(ds_select("1", "$var(a)")) {
 		next address to achieve serial forking to all possible destinations.
 		</para>
 		<para>
+		Returns <emphasis>1</emphasis> if further destinations are available,
+		<emphasis>2</emphasis> if this is the only or last, <emphasis>-1</emphasis>
+		on failure.
+		</para>
+		<para>
 		This function can be used from ANY_ROUTE.
 		</para>
 		<example>
@@ -1765,7 +1785,7 @@ failure_route[REROUTE] {
 </programlisting>
 		</example>
 	</section>
-	<section>
+	<section id="dispatcher.f.ds_next_dst">
 		<title>
 		<function moreinfo="none">ds_next_dst()</function>
 		</title>
@@ -1774,16 +1794,26 @@ failure_route[REROUTE] {
 		and sets the dst_uri (outbound proxy address).
 		</para>
 		<para>
+		Returns <emphasis>1</emphasis> if further destinations remain,
+		<emphasis>2</emphasis> if this was the last, <emphasis>-1</emphasis>
+		on failure.
+		</para>
+		<para>
 		This function can be used from REQUEST_ROUTE, FAILURE_ROUTE.
 		</para>
 	</section>
-	<section>
+	<section id="dispatcher.f.ds_next_domain">
 		<title>
 		<function moreinfo="none">ds_next_domain()</function>
 		</title>
 		<para>
 		Takes the next destination address from the corresponding XAVPs
 		and sets the domain part of the request URI.
+		</para>
+		<para>
+		Returns <emphasis>1</emphasis> if further destinations remain,
+		<emphasis>2</emphasis> if this was the last, <emphasis>-1</emphasis>
+		on failure.
 		</para>
 		<para>
 		This function can be used from REQUEST_ROUTE, FAILURE_ROUTE.

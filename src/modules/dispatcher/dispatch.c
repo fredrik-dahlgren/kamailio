@@ -2631,6 +2631,11 @@ int ds_select_dst_limit(sip_msg_t *msg, int set, int alg, uint32_t limit,
 
 	LM_DBG("selected target destinations: %d\n", vstate.cnt);
 
+	/* return 1 if more destinations remain in the failover list,
+	 * or 2 if this is the last/only destination */
+	if(ret == 1 && (ds_flags & DS_FAILOVER_ON) && ds_xavp_dst.len > 0) {
+		return (vstate.cnt > 1) ? 1 : 2;
+	}
 	return ret;
 }
 
@@ -2750,6 +2755,11 @@ int ds_select_routes_limit(
 	LM_DBG("selected target destinations: %d\n", vstate.cnt);
 	if(sres != NULL) {
 		*sres = gres;
+	}
+	/* return 1 if more destinations remain in the failover list,
+	 * or 2 if this is the last/only destination */
+	if(gret == 1 && (ds_flags & DS_FAILOVER_ON) && ds_xavp_dst.len > 0) {
+		return (vstate.cnt > 1) ? 1 : 2;
 	}
 	return gret;
 }
@@ -3299,11 +3309,8 @@ next_dst:
 
 	/* call load update if dstid field is set */
 	lxavp = xavp_get(&ds_xavp_dst_dstid, rxavp);
-	if(lxavp == NULL || lxavp->val.type != SR_XTYPE_STR) {
-		/* no dstid field - done */
-		return 1;
-	}
-	if(upos == DS_USE_NEXT) {
+	if(lxavp != NULL && lxavp->val.type == SR_XTYPE_STR
+			&& upos == DS_USE_NEXT) {
 		ret = ds_load_replace(msg, &lxavp->val.v.s);
 		switch(ret) {
 			case 0:
@@ -3317,7 +3324,14 @@ next_dst:
 				return -1;
 		}
 	}
-	return 1;
+	/* return 1 if more destinations remain in the failover list,
+	 * or 2 if this is the last one */
+	rxavp = xavp_get(&ds_xavp_dst, NULL);
+	if(rxavp != NULL && rxavp->val.type == SR_XTYPE_XAVP
+			&& xavp_get_next(rxavp) != NULL) {
+		return 1;
+	}
+	return 2;
 }
 
 /* callback for adding nodes based on index */
